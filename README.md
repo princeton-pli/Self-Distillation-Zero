@@ -1,6 +1,6 @@
 # Self-Distillation Zero
 
-![SD-Zero teaser](figures/Picture0.png)
+<!-- ![SD-Zero teaser](figures/Picture0.png) -->
 
 This repo is the implementation of the SD-Zero paper: [**Self-Distillation Zero: Self-Revision Turns Binary Rewards into Dense Supervision**](https://arxiv.org/html/2604.12002v1).
 
