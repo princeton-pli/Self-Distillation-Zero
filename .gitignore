@@ -74,6 +74,9 @@ self-distillation/checkpoints/
 self-distillation/.nrl_remote_map.json
 self-distillation/.nrl_remote_state.json
 
+# --- Vendored NeMo-RL submodules (large; install via uv from pyproject) ---
+self-distillation/3rdparty/
+
 # --- General training artifacts -------------------------------------------
 ckpts/
 checkpoints/

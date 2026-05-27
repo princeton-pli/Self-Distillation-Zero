@@ -1,11 +1,10 @@
-# SD-Zero
+# Self-Distillation Zero
 
-Reference implementation of **Self-Distillation Zero (SD-Zero): Self-Revision
-Turns Binary Rewards into Dense Supervision**.
+![SD-Zero teaser](figures/Picture0.png)
 
-Paper: <https://arxiv.org/html/2604.12002v1>
+This repo is the implementation of the SD-Zero paper: [**Self-Distillation Zero: Self-Revision Turns Binary Rewards into Dense Supervision**](https://arxiv.org/html/2604.12002v1).
 
-The released code implements both phases of the paper.
+![SD-Zero method overview](figures/Picture1.png)
 
 **Phase 1 — Self-Revision Training (SRT).** For each problem `x` with
 ground-truth answer `a`, the base model samples an initial response
@@ -31,7 +30,7 @@ given `chat(x) + y + P_r + y`; the per-token logits over the second copy of
 - [x] Phase 2: Self-Distillation — `self-distillation/` + `scripts/distill.sh`
 <!-- - [ ] Pretrained SRT checkpoints -->
 
-## Layout
+<!-- ## Layout
 
 ```
 SD-Zero/
@@ -51,7 +50,7 @@ SD-Zero/
     ├── run_srt_data.sh          # Phase 1, step 1: collect D_revision + split
     ├── sft.sh                   # Phase 1, step 2: 2-stage SFT
     └── distill.sh               # Phase 2: on-policy self-distillation
-```
+``` -->
 
 > The two phases use different dependency stacks and live in **separate
 > virtualenvs** (`SD-Zero/.venv` for Phase 1, `SD-Zero/self-distillation/.venv`
@@ -146,27 +145,10 @@ LR_STAGE1=5e-6   LR_STAGE2=5e-6
 
 ## Phase 2 — On-policy Self-Distillation
 
-### Environment
-
-Phase 2 is a fork of NeMo-RL and uses its own `uv`-managed environment in
-`self-distillation/`, driven by `self-distillation/pyproject.toml` (with
-heavier deps: vLLM, Megatron Core, FlashAttention, Ray, etc.). Do **not**
-reuse the Phase 1 `.venv` for this — it doesn't pin the right CUDA stack.
-
-```bash
-cd SD-Zero/self-distillation
-uv venv                       # creates self-distillation/.venv from .python-version
-source setup_env.sh           # sets CUDA / cuDNN / NCCL paths used by uv run
-```
-
-After this, `scripts/distill.sh` launches Phase 2 with `uv run`, which
-installs the locked dependencies from `pyproject.toml` on first call and
-sources `setup_env.sh` itself.
-
 ### Approach
 
 Phase 2 (Section 2.2 of the paper) turns the SRT checkpoint from Phase 1
-into the *teacher* for on-policy self-distillation. For each batch of
+into both *teacher* and *teacher* for on-policy self-distillation. For each batch of
 problems:
 
 1. The **student** (initialized from the SRT checkpoint) samples
@@ -195,13 +177,30 @@ problems:
          D_KL( pi_theta(. | x, y_<t)  ||  pi_theta_SRT(. | x, y, P_r, y_<t) )
    ```
 
+### Environment
+
+Phase 2 is a fork of [NeMo-RL](https://github.com/NVIDIA-NeMo/RL) and uses its own `uv`-managed environment in
+`self-distillation/`, driven by `self-distillation/pyproject.toml` (with
+heavier deps: vLLM, Megatron Core, FlashAttention, Ray, etc.). Do **not**
+reuse the Phase 1 `.venv` for this — it doesn't pin the right CUDA stack.
+
+```bash
+cd SD-Zero/self-distillation
+uv venv                       # creates self-distillation/.venv from .python-version
+source setup_env.sh           # sets CUDA / cuDNN / NCCL paths used by uv run
+```
+
+After this, `scripts/distill.sh` launches Phase 2 with `uv run`, which
+installs the locked dependencies from `pyproject.toml` on first call and
+sources `setup_env.sh` itself.
+
 ### Run
 
 ```bash
 bash scripts/distill.sh
 ```
 
-The script wraps `self-distillation/examples/run_distillation.py` with the
+<!-- The script wraps `self-distillation/examples/run_distillation.py` with the
 `distillation_math.yaml` config (DeepScaler train, AIME2024 val) and one
 DTensor process per visible GPU. Override defaults via env vars:
 
@@ -217,15 +216,16 @@ MAX_NUM_STEPS=1000  MAX_NUM_EPOCHS=5  LR=5e-6
 TOPK=64                                     # top-k teacher logits used in the KL target
 KL_TYPE=mixed                               # forward | reverse | mixed
 MIXED_KL_WEIGHT=0.5                         # weight of forward KL when kl_type=mixed
-```
+``` -->
 
-The Phase 2 driver builds the teacher prompt on the fly from each batch's
-`(x, y, r)` — no extra dataset columns are required.
+<!-- The Phase 2 driver builds the teacher prompt on the fly from each batch's
+`(x, y, r)` — no extra dataset columns are required. -->
+
 
 ## Datasets used in the paper
 
-- **Math:** `open-r1/OpenR1-Math-220k`
-- **Code:** `open-r1/codeforces-cots` (`solutions` subset)
+- **Math:** [`open-r1/OpenR1-Math-220k`](https://huggingface.co/datasets/open-r1/OpenR1-Math-220k)
+- **Code:** [`open-r1/codeforces-cots`](https://huggingface.co/datasets/open-r1/codeforces-cots) (`solutions` subset)
 
 Local JSON/JSONL files are also accepted via the `DATASET=` env var; each
 record needs `problem`/`question` + `answer`/`solution` (math) or the

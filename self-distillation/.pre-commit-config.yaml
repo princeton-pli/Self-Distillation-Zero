@@ -1,0 +1,80 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+    - id: end-of-file-fixer
+      types_or: [python, pyi] # Only include Python files.
+    - id: trailing-whitespace
+      types_or: [python, pyi] # Only include Python files.
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: "v0.9.9" # Use the appropriate version
+    hooks:
+    - id: ruff
+      args: ["--fix"]
+    - id: ruff
+      args: ["check", "--select", "I", "--fix"]
+    - id: ruff-format
+
+  - repo: https://github.com/ComPWA/mirrors-taplo
+    rev: v0.9.3
+    hooks:
+    - id: taplo-format
+      name: Format TOML files with taplo
+
+  - repo: local
+    hooks:
+      - id: no-underscore-md
+        name: "Disallow '_' in Markdown filenames"
+        language: system
+        entry: |
+          bash -c '
+            # Report the offending files
+            echo "[pre-commit] ERROR: Found Markdown files with underscores:" >&2
+            for file in "$@"; do
+              echo "  - $file (use hyphens instead)" >&2
+            done
+            exit 1
+          '
+        files: '.*\/[^\/]*_[^\/]*\.md$'
+        exclude: '^\.github/'
+        types: [file]
+
+  - repo: local
+    hooks:
+      - id: pyrefly-typecheck
+        name: pyrefly check
+        entry: uv run --group dev pyrefly check
+        types_or: [python, pyi]
+        language: system
+        pass_filenames: false # Pyrefly reads config & project roots itself.
+        args: []
+        require_serial: true
+        additional_dependencies: []
+        minimum_pre_commit_version: "2.9.2"
+
+  # This pre-commit hook ensures that the config file is minimized and reflects exactly what you
+  # intend to merge. Without it, you might run experiments with one config, but when merging upstream,
+  # the config could silently fall back to the base defaults—resulting in different hyperparameters.
+  #
+  # For example, we've seen cases where an SFT recipe runs without a custom chat_template. When merged,
+  # it unexpectedly picks up the default recommended chat_template from upstream, which doesn't match
+  # the original experiment setup.
+  #
+  # If this check is disruptive, you can disable the pre-commit hook locally. However, before a recipe
+  # is accepted upstream, we expect the config to be minimized.
+  #
+  # The minimize-check command infers the base config from each recipe's `defaults` key, so it
+  # correctly handles inheritance chains (e.g., child → parent → grandparent).
+  - repo: local
+    hooks:
+      - id: configs-minimize-check
+        name: minimize-check llm recipes
+        language: system
+        pass_filenames: false
+        entry: bash
+        args:
+          - -lc
+          - |
+            set -euo pipefail
+            ./tools/config_cli.py minimize-check examples/configs/recipes/{llm,vlm}/*.yaml
