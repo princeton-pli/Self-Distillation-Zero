@@ -1,0 +1,29 @@
+# Phase 1 — Self-Revision Training (SRT).
+#
+# Used by:
+#   - self_critique_pipeline.py  (data collection)
+#   - sft/sft.py                 (two-stage SFT)
+#
+# Phase 2 (Self-Distillation) has its own heavier environment managed by
+# uv inside ../self-distillation/; see self-distillation/pyproject.toml.
+
+# Core inference & data
+vllm>=0.5.0
+datasets>=2.18.0
+transformers>=4.43.0
+tqdm
+
+# Math grader (vendored under math_evaluation/)
+sympy
+regex
+latex2sympy2
+word2number
+
+# Optional: stronger math equivalence checker. Enable with `--math_verify`.
+# math-verify
+
+# Two-stage SFT driver (../scripts/sft.sh).
+trl>=0.12
+accelerate>=0.34
+liger-kernel
+wandb

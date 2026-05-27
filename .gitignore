@@ -1,0 +1,93 @@
+# --- Python ----------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+.eggs/
+build/
+dist/
+develop-eggs/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+MANIFEST
+pip-log.txt
+pip-delete-this-directory.txt
+
+# --- Virtualenvs / package managers ---------------------------------------
+.venv/
+venv/
+venvs/
+env/
+ENV/
+.python-version
+uv.lock
+.uv-cache/
+
+# --- Editors / IDEs -------------------------------------------------------
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# --- Jupyter --------------------------------------------------------------
+.ipynb_checkpoints/
+
+# --- Logs, profiling, coverage --------------------------------------------
+*.log
+*.out
+*.err
+job_log/
+slurm-*.out
+slurm-*.err
+.coverage
+.coverage.*
+coverage.json
+htmlcov/
+.tox/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Phase 1 (SRT) outputs -------------------------------------------------
+self-revision-training/outputs/
+self-revision-training/train_data/
+self-revision-training/sft/ckpts/
+
+# --- Phase 2 (NeMo-RL) outputs --------------------------------------------
+self-distillation/results/
+self-distillation/logs/
+self-distillation/tb_logs*/
+self-distillation/wandb/
+self-distillation/checkpoints/
+self-distillation/.nrl_remote_map.json
+self-distillation/.nrl_remote_state.json
+
+# --- General training artifacts -------------------------------------------
+ckpts/
+checkpoints/
+results/
+test_scripts/
+wandb/
+tb_logs*/
+*.pt
+*.bin
+*.safetensors
+*.tar
+*.tar.gz
+
+# --- Local secrets / scratch ----------------------------------------------
+.env
+.env.local
+*.local
